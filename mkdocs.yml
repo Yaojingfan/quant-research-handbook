@@ -1,0 +1,189 @@
+site_name: Quant Research Handbook
+site_description: 量化策略研究新人手册——股票量化多因子研究内部知识库
+site_author: Quant Research Team
+site_url: https://YOUR_GITHUB_USERNAME.github.io/quant-research-handbook/
+
+repo_name: quant-research-handbook
+repo_url: https://github.com/YOUR_GITHUB_USERNAME/quant-research-handbook
+edit_uri: edit/main/docs/
+
+copyright: Copyright &copy; Quant Research Team — Internal Training Handbook
+
+theme:
+  name: material
+  language: zh
+  custom_dir: overrides
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue grey
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: 切换到深色模式
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue grey
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: 切换到浅色模式
+  font:
+    text: IBM Plex Sans
+    code: IBM Plex Mono
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - toc.follow
+  icon:
+    logo: material/chart-timeline-variant
+    repo: fontawesome/brands/github
+
+plugins:
+  - search:
+      lang:
+        - zh
+        - en
+  - tags
+
+# Exclude non-nav assets if added under docs later
+exclude_docs: |
+  meta/**
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+extra_javascript:
+  - https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js
+  - https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js
+  - javascripts/katex.js
+
+extra_css:
+  - stylesheets/extra.css
+  - https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/YOUR_GITHUB_USERNAME/quant-research-handbook
+
+nav:
+  - 首页: index.md
+  - Part I 认识量化研究:
+    - 概览: part-i/index.md
+    - 01 什么是量化投资: part-i/01-what-is-quant-investing.md
+    - 02 团队结构与岗位分工: part-i/02-team-structure.md
+    - 03 量化策略的基本地图: part-i/03-strategy-map.md
+    - 04 多头、增强与市场中性: part-i/04-long-enhancement-neutral.md
+    - 05 收益、风险与基准: part-i/05-return-risk-benchmark.md
+    - 06 Alpha、Beta 与风险暴露: part-i/06-alpha-beta-exposure.md
+    - 07 策略研究生命周期: part-i/07-research-lifecycle.md
+    - 08 回测与实盘的距离: part-i/08-backtest-vs-live.md
+  - Part II 数据是量化研究的起点:
+    - 概览: part-ii/index.md
+    - 09 量化数据的基本类型: part-ii/09-data-types.md
+    - 10 数据获取与数据 Pipeline: part-ii/10-data-pipeline.md
+    - 11 数据清洗与质量控制: part-ii/11-data-cleaning.md
+    - 12 复权、停牌与交易状态: part-ii/12-adjustment-trading-status.md
+    - 13 时间对齐与避免未来函数: part-ii/13-time-alignment.md
+    - 14 数据存储与研究数据集: part-ii/14-storage-datasets.md
+  - Part III 股票多因子研究:
+    - 概览: part-iii/index.md
+    - 15 因子的基本认知: part-iii/15-factor-basics.md
+    - 16 常见股票因子体系: part-iii/16-factor-taxonomy.md
+    - 17 因子构造: part-iii/17-factor-construction.md
+    - 18 单因子检验: part-iii/18-single-factor-test.md
+    - 19 因子稳健性与有效性判断: part-iii/19-factor-robustness.md
+    - 20 因子相关性、冗余与组合: part-iii/20-factor-combination.md
+  - Part IV 从因子到投资组合:
+    - 概览: part-iv/index.md
+    - 21 股票池构建: part-iv/21-universe.md
+    - 22 从因子分数到预期收益: part-iv/22-expected-return.md
+    - 23 组合权重方法: part-iv/23-portfolio-weights.md
+    - 24 风险约束与中性化: part-iv/24-risk-constraints.md
+    - 25 组合优化基础: part-iv/25-portfolio-optimization.md
+  - Part V 回测体系:
+    - 概览: part-v/index.md
+    - 26 回测的基本框架: part-v/26-backtest-framework.md
+    - 27 交易成本与成交建模: part-v/27-transaction-costs.md
+    - 28 绩效评价指标: part-v/28-performance-metrics.md
+    - 29 回测偏差与常见陷阱: part-v/29-backtest-pitfalls.md
+    - 30 样本外验证与稳健性测试: part-v/30-oos-robustness.md
+  - Part VI 风险管理与收益归因:
+    - 概览: part-vi/index.md
+    - 32 风险的基本框架: part-vi/32-risk-framework.md
+    - 33 风险模型基础: part-vi/33-risk-models.md
+    - 34 收益归因: part-vi/34-performance-attribution.md
+    - 35 风险监控与策略失效: part-vi/35-risk-monitoring.md
+  - Part VII 研究工程化:
+    - 概览: part-vii/index.md
+    - 36 Python 在量化研究中的应用: part-vii/36-python-for-quant.md
+    - 37 SQL 与研究数据库: part-vii/37-sql-databases.md
+    - 38 研究代码的工程化: part-vii/38-research-engineering.md
+    - 39 可复现研究: part-vii/39-reproducible-research.md
+    - 40 研究平台能力分层: part-vii/40-research-platform.md
+  - Part VIII 机器学习在多因子研究中的应用:
+    - 概览: part-viii/index.md
+    - 41 机器学习在量化中的正确定位: part-viii/41-ml-positioning.md
+    - 42 常用模型概览: part-viii/42-ml-models.md
+    - 43 机器学习研究流程: part-viii/43-ml-workflow.md
+    - 44 机器学习常见陷阱: part-viii/44-ml-pitfalls.md
+  - Part IX 从研究到实盘:
+    - 概览: part-ix/index.md
+    - 45 模拟盘与实盘验证: part-ix/45-paper-trading.md
+    - 46 策略生产流程: part-ix/46-production-workflow.md
+    - 47 实盘监控与故障处理: part-ix/47-live-monitoring.md
+    - 48 策略容量与规模管理: part-ix/48-capacity-management.md
+  - Appendix 附录:
+    - A 量化术语表: appendix/a-glossary.md
+    - B 常用数学与统计基础: appendix/b-math-stats.md
+    - C Python 与 SQL 快速参考: appendix/c-python-sql.md
+    - D 常见问题 FAQ: appendix/d-faq.md
