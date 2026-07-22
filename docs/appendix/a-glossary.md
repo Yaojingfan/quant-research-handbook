@@ -8,7 +8,7 @@
 
 **定义**：风险调整后的超额收益；或无法被已知风险因子（市场、行业、风格）解释的收益部分。
 
-**注意**：绝对收益高 ≠ Alpha；须先剥离 Beta 与风格暴露（见 Part I 06、Part VI 34）。
+**注意**：绝对收益高 ≠ Alpha；须先剥离 Beta 与风格暴露（见 Part I 06、Part VI 33）。
 
 ---
 
@@ -110,9 +110,9 @@ $$
 
 ## Implementation Shortfall（IS，实施缺口）
 
-**定义**：相对决策价的执行损益缺口，衡量「想成交的价」与「实际成交价」之差。与上方 Slippage 同属执行质量口径；本手册模拟盘字段记为 **IS（bp）** $= IS \times 10000$（见 Part IX 45）。
+**定义**：相对决策价的执行损益缺口，衡量「想成交的价」与「实际成交价」之差。与上方 Slippage 同属执行质量口径；本手册模拟盘字段记为 **IS（bp）** $= IS \times 10000$（见 Part IX 44）。
 
-买卖符号约定（与 45 章一致）：
+买卖符号约定（与 44 章一致）：
 
 $$
 IS_{\mathrm{buy}} = \frac{P_{exec} - P_{decision}}{P_{decision}},\qquad
@@ -159,7 +159,7 @@ $$
 
 **定义**：策略在不显著损伤超额的前提下可承载的最大资金规模。
 
-**驱动**：流动性、冲击成本、换手、因子拥挤（Part IX 48）。
+**驱动**：流动性、冲击成本、换手、因子拥挤（Part IX 47）。
 
 ---
 
@@ -169,7 +169,7 @@ $$
 | --- | --- |
 | IR（Information Ratio） | 主动收益 / TE |
 | IS（In-Sample） | 样本内；勿与 Implementation Shortfall 混淆 |
-| IS（Implementation Shortfall） | 实施缺口；模拟盘常记 IS（bp）$= IS \times 10000$（见 45） |
+| IS（Implementation Shortfall） | 实施缺口；模拟盘常记 IS（bp）$= IS \times 10000$（见 44） |
 | PIT（Point-in-Time） | 当时可得信息快照 |
 | ADV | 平均日成交额 |
 | OMS | 订单管理系统 |

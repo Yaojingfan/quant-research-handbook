@@ -1,4 +1,4 @@
-# 36 Python 在量化研究中的应用
+# 35 Python 在量化研究中的应用
 
 > 所属模块：Part VII 研究工程化
 
@@ -16,8 +16,7 @@
 
 ---
 
-## 36.1 NumPy
-
+## 35.1 NumPy
 **定位**：底层数值数组运算，Pandas 的引擎。
 
 ```python
@@ -38,8 +37,7 @@ z = (x - mu) / sigma
 
 ---
 
-## 36.2 Pandas
-
+## 35.2 Pandas
 **核心数据结构**：`Series`（一维）、`DataFrame`（二维表）。
 
 多因子研究典型索引：
@@ -61,8 +59,7 @@ df.sort_index(inplace=True)
 
 ---
 
-## 36.3 向量化
-
+## 35.3 向量化
 **反模式**：
 
 ```python
@@ -95,8 +92,7 @@ def daily_rank_ic(factor_df, ret_df):
 
 ---
 
-## 36.4 内存与性能
-
+## 35.4 内存与性能
 | 技巧 | 说明 |
 | --- | --- |
 | `dtype` 优化 | float64 → **float32** 可约减半（注意精度） |
@@ -109,8 +105,7 @@ def daily_rank_ic(factor_df, ret_df):
 
 ---
 
-## 36.5 常见数据处理模式
-
+## 35.5 常见数据处理模式
 ```mermaid
 flowchart LR
     A[Raw CSV/DB] --> B[清洗对齐]
@@ -143,8 +138,7 @@ def neutralize(f: pd.Series, industry: pd.Series, log_mcap: pd.Series) -> pd.Ser
 
 ---
 
-## 36.6 代码质量与错误处理
-
+## 35.6 代码质量与错误处理
 - **函数化**：因子计算 = 纯函数 `(data, params) -> factor`
 - **类型提示**：`def calc_pe(df: pd.DataFrame) -> pd.Series`
 - **断言**：`assert df.index.is_unique`
@@ -165,4 +159,4 @@ def neutralize(f: pd.Series, industry: pd.Series, log_mcap: pd.Series) -> pd.Ser
 
 - Pandas 向量化是多因子研究的默认姿势
 - 性能问题先查 merge/重复计算，再考虑 Numba/C++
-- 下一章 [37 SQL 与研究数据库](37-sql-databases.md)介绍 SQL 与数据库在研究数据层的作用
+- 下一章 [36 SQL 与研究数据库](36-sql-databases.md)介绍 SQL 与数据库在研究数据层的作用

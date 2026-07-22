@@ -15,8 +15,8 @@
 
 | 章节 | 主题 |
 | --- | --- |
-| [36 Python 在量化研究中的应用](36-python-for-quant.md) | 面板操作、性能与陷阱 |
-| [37 SQL 与研究数据库](37-sql-databases.md) | 查询、窗口、研究案例 |
-| [38 研究代码的工程化](38-research-engineering.md) | 项目结构、配置、测试 |
-| [39 可复现研究](39-reproducible-research.md) | 种子、版本、实验追踪 |
-| [40 研究平台能力分层](40-research-platform.md) | 平台能力清单（细节见 Part IX） |
+| [35 Python 在量化研究中的应用](35-python-for-quant.md) | 面板操作、性能与陷阱 |
+| [36 SQL 与研究数据库](36-sql-databases.md) | 查询、窗口、研究案例 |
+| [37 研究代码的工程化](37-research-engineering.md) | 项目结构、配置、测试 |
+| [38 可复现研究](38-reproducible-research.md) | 种子、版本、实验追踪 |
+| [39 研究平台能力分层](39-research-platform.md) | 平台能力清单（细节见 Part IX） |

@@ -15,7 +15,7 @@
 
 | 章节 | 主题 |
 | --- | --- |
-| [45 模拟盘与实盘验证](45-paper-trading.md) | Paper / Shadow / 小资金 |
-| [46 策略生产流程](46-production-workflow.md) | 每日闭环 |
-| [47 实盘监控与故障处理](47-live-monitoring.md) | 告警与熔断 |
-| [48 策略容量与规模管理](48-capacity-management.md) | 流动性与衰减 |
+| [44 模拟盘与实盘验证](44-paper-trading.md) | Paper / Shadow / 小资金 |
+| [45 策略生产流程](45-production-workflow.md) | 每日闭环 |
+| [46 实盘监控与故障处理](46-live-monitoring.md) | 告警与熔断 |
+| [47 策略容量与规模管理](47-capacity-management.md) | 流动性与衰减 |

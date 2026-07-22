@@ -15,7 +15,7 @@
 
 | 章节 | 主题 |
 | --- | --- |
-| [32 风险的基本框架](32-risk-framework.md) | 风险类别、限额与预算 |
-| [33 风险模型基础](33-risk-models.md) | 协方差、因子模型、特异性风险 |
-| [34 收益归因](34-performance-attribution.md) | 收益来源拆解 |
-| [35 风险监控与策略失效](35-risk-monitoring.md) | 监控、熔断与失效诊断 |
+| [31 风险的基本框架](31-risk-framework.md) | 风险类别、限额与预算 |
+| [32 风险模型基础](32-risk-models.md) | 协方差、因子模型、特异性风险 |
+| [33 收益归因](33-performance-attribution.md) | 收益来源拆解 |
+| [34 风险监控与策略失效](34-risk-monitoring.md) | 监控、熔断与失效诊断 |

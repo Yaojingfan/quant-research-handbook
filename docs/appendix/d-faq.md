@@ -40,7 +40,7 @@
 
 ## 回测很好为什么实盘失效？
 
-**回测—实盘 gap** 来源（Part I 08、Part V 29、Part IX 45）：
+**回测—实盘 gap** 来源（Part I 08、Part V 29、Part IX 44）：
 
 - 未来函数、幸存者偏差
 - 成本低估
@@ -95,13 +95,13 @@
 - 未计真实成本与容量
 - Sharpe 对非正态尾部不敏感
 
-→ 配合 MDD、IR、OOS、归因一起看（Part V 28、Part VI 34）。
+→ 配合 MDD、IR、OOS、归因一起看（Part V 28、Part VI 33）。
 
 ---
 
 ## 如何判断策略过拟合？
 
-检查清单（Part V 29–30、Part VIII 44）：
+检查清单（Part V 29–30、Part VIII 43）：
 
 - [ ] Train 好、Test 差
 - [ ] 参数微变结果剧变

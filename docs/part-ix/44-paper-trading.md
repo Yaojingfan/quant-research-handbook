@@ -1,4 +1,4 @@
-# 45 模拟盘与实盘验证
+# 44 模拟盘与实盘验证
 
 > 所属模块：Part IX 从研究到实盘
 
@@ -35,8 +35,7 @@ flowchart LR
 
 ---
 
-## 45.1 Paper Trading
-
+## 44.1 Paper Trading
 **定义**：用实时或延迟行情，按策略规则模拟持仓与成交，不涉及真实资金。
 
 **要点**：
@@ -53,8 +52,7 @@ fill_price = np.where(tradable, open_next, np.nan)
 
 ---
 
-## 45.2 Shadow Portfolio
-
+## 44.2 Shadow Portfolio
 **定义**：生产 Pipeline 完整运行，订单**不真实发送**，或与主策略并行记录。
 
 **价值**：
@@ -66,8 +64,7 @@ fill_price = np.where(tradable, open_next, np.nan)
 
 ---
 
-## 45.3 小资金验证
-
+## 44.3 小资金验证
 - 资金量：足以产生真实滑点，又低于容量上限（如策略预估容量的 5%–10%）
 - 账户独立，避免与主产品混淆
 - 合规审批、风控限额单独设置
@@ -80,8 +77,7 @@ fill_price = np.where(tradable, open_next, np.nan)
 
 ---
 
-## 45.4 实盘偏差记录
-
+## 44.4 实盘偏差记录
 每日记录 **Implementation Shortfall（实施缺口）**。买卖符号约定：买入时 $(P_{exec}-P_{decision})/P_{decision}>0$ 表示买贵了（不利）；卖出时常用 $(P_{decision}-P_{exec})/P_{decision}$，或统一用「成交相对决策价的损益方向」。$P_{decision}$ 须事先约定（前收 / 开盘 / 到达价 / VWAP 基准）：
 
 $$
@@ -100,8 +96,7 @@ $$
 
 ---
 
-## 45.5 执行质量分析
-
+## 44.5 执行质量分析
 - **到达率**：目标股数 / 应调股数
 - **时间分布**：是否集中在开盘/收盘
 - **市场冲击**：大单 vs 小单滑点差
@@ -123,4 +118,4 @@ $$
 
 - 模拟盘验证的是**系统与口径**，小资金验证的是**成本与容量**
 - 偏差必须量化归档
-- 下一章 [46 策略生产流程](46-production-workflow.md)讲每日生产流程
+- 下一章 [45 策略生产流程](45-production-workflow.md)讲每日生产流程

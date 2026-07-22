@@ -1,4 +1,4 @@
-# 38 研究代码的工程化
+# 37 研究代码的工程化
 
 > 所属模块：Part VII 研究工程化
 
@@ -16,8 +16,7 @@
 
 ---
 
-## 38.1 Notebook 与脚本
-
+## 37.1 Notebook 与脚本
 | 工具 | 适用 |
 | --- | --- |
 | Jupyter Notebook | 探索、可视化、单次实验 |
@@ -28,8 +27,7 @@
 
 ---
 
-## 38.2 项目目录结构
-
+## 37.2 项目目录结构
 ```text
 quant-research/
 ├── configs/           # YAML 实验配置
@@ -52,8 +50,7 @@ quant-research/
 
 ---
 
-## 38.3 配置管理
-
+## 37.3 配置管理
 ```yaml
 # configs/exp_roe_v1.yaml
 universe: csi500
@@ -61,7 +58,7 @@ start_date: "2015-01-01"
 end_date: "2024-12-31"
 factor:
   name: roe_ttm
-  winsorize: [0.01, 0.99]
+  winsorize: [47.01, 0.99]
   neutralize: [industry, log_mcap]
 ```
 
@@ -74,8 +71,7 @@ cfg = yaml.safe_load(open("configs/exp_roe_v1.yaml"))
 
 ---
 
-## 38.4 日志
-
+## 37.4 日志
 ```python
 import logging
 logging.basicConfig(
@@ -94,8 +90,7 @@ log.info("coverage=%d", len(df))
 
 ---
 
-## 38.5 单元测试
-
+## 37.5 单元测试
 ```python
 # tests/test_winsorize.py
 def test_winsorize_bounds():
@@ -108,8 +103,7 @@ def test_winsorize_bounds():
 
 ---
 
-## 38.6 异常处理
-
+## 37.6 异常处理
 ```python
 def load_bar(date: str) -> pd.DataFrame:
     path = f"data/bar/{date}.parquet"
@@ -125,8 +119,7 @@ def load_bar(date: str) -> pd.DataFrame:
 
 ---
 
-## 38.7 命令行接口
-
+## 37.7 命令行接口
 ```python
 # scripts/run_factor_test.py
 import argparse
@@ -158,4 +151,4 @@ python scripts/run_factor_test.py --config configs/exp_roe_v1.yaml
 ## 要点回顾
 
 - 工程化不是重器，是让结论**可复现、可评审**
-- 下一章 [39 可复现研究](39-reproducible-research.md)聚焦 Git、环境与实验归档
+- 下一章 [38 可复现研究](38-reproducible-research.md)聚焦 Git、环境与实验归档

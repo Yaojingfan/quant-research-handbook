@@ -1,4 +1,4 @@
-# 43 机器学习研究流程
+# 42 机器学习研究流程
 
 > 所属模块：Part VIII 机器学习在多因子研究中的应用
 
@@ -31,8 +31,7 @@ flowchart LR
 
 ---
 
-## 43.1 特征工程
-
+## 42.1 特征工程
 - 输入：Part III 已检验因子 + 合理衍生（交互、比率）
 - **截面标准化**：每个 trade_date 独立 z-score / rank
 - 缺失：行业 median 填充 + missing indicator
@@ -44,8 +43,7 @@ X = df.groupby("trade_date").transform(lambda s: (s - s.mean()) / s.std())
 
 ---
 
-## 43.2 标签定义
-
+## 42.2 标签定义
 | 标签 | 公式/说明 | 注意 |
 | --- | --- | --- |
 | 次月收益 | $r_{t+1}$ | 需 lag 对齐 |
@@ -57,8 +55,7 @@ X = df.groupby("trade_date").transform(lambda s: (s - s.mean()) / s.std())
 
 ---
 
-## 43.3 数据切分
-
+## 42.3 数据切分
 **错误**：随机 shuffle 行 → 未来泄漏。
 
 **正确**：按时间 forward chaining：
@@ -71,16 +68,14 @@ Train: 2010–2018  |  Valid: 2019–2020  |  Test: 2021–2024
 
 ---
 
-## 43.4 训练与调参
-
+## 42.4 训练与调参
 - 调参仅在 Train+Valid；Test **一次性**
 - 超参搜索用 Optuna / grid — 记录 trial 数，警惕隐式多重检验
 - Early stopping 基于 Valid IC，非 Train loss
 
 ---
 
-## 43.5 样本外评估
-
+## 42.5 样本外评估
 | 指标 | 说明 |
 | --- | --- |
 | OOS Rank IC | 与因子研究同口径 |
@@ -92,8 +87,7 @@ Train: 2010–2018  |  Valid: 2019–2020  |  Test: 2021–2024
 
 ---
 
-## 43.6 模型解释
-
+## 42.6 模型解释
 - **线性**：系数符号与经济逻辑
 - **树模型**：SHAP 全局/局部；检查是否由 1–2 特征主导
 - **稳定性**：滚动 SHAP 排名是否剧变
@@ -102,8 +96,7 @@ Train: 2010–2018  |  Valid: 2019–2020  |  Test: 2021–2024
 
 ---
 
-## 43.7 信号到组合
-
+## 42.7 信号到组合
 ```python
 # 模型分数 → 组合权重（示意）
 df["score"] = model.predict(X)
@@ -127,4 +120,4 @@ df["rank"] = df.groupby("trade_date")["score"].rank(pct=True)
 
 - 时间切分 + Purge 是 ML 量化与 Kaggle 的最大区别
 - 模型层通过 ≠ 策略层通过
-- 下一章 [44 机器学习常见陷阱](44-ml-pitfalls.md)集中讲 ML 特有陷阱
+- 下一章 [43 机器学习常见陷阱](43-ml-pitfalls.md)集中讲 ML 特有陷阱

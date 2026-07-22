@@ -1,4 +1,4 @@
-# 39 可复现研究
+# 38 可复现研究
 
 > 所属模块：Part VII 研究工程化
 
@@ -16,8 +16,7 @@
 
 ---
 
-## 39.1 Git
-
+## 38.1 Git
 **最低要求**：
 
 ```bash
@@ -36,8 +35,7 @@ git tag exp-roe-20240315   # 标记重要实验节点
 
 ---
 
-## 39.2 环境管理
-
+## 38.2 环境管理
 ```bash
 # requirements.txt 或 pyproject.toml 锁定版本
 pip freeze > requirements.lock
@@ -51,8 +49,7 @@ Docker 镜像进一步锁定 OS 层依赖 — 生产与研究容器化推荐。
 
 ---
 
-## 39.3 随机种子
-
+## 38.3 随机种子
 ```python
 import numpy as np
 import random
@@ -67,8 +64,7 @@ Bootstrap、随机抽样、train/test split 必须固定种子并写入配置。
 
 ---
 
-## 39.4 数据版本
-
+## 38.4 数据版本
 ```yaml
 data_version: "bar_v20240301"
 factor_store: "fs_v3.2"
@@ -79,8 +75,7 @@ index_member: "im_hist_20240228"
 
 ---
 
-## 39.5 实验配置
-
+## 38.5 实验配置
 一份实验 = 一个 YAML + 一个 Git commit + 一个数据版本：
 
 ```yaml
@@ -89,13 +84,12 @@ git_commit: a1b2c3d
 data_version: bar_v20240301
 params:
   universe: csi500
-  winsorize: [0.01, 0.99]
+  winsorize: [47.01, 0.99]
 ```
 
 ---
 
-## 39.6 结果归档
-
+## 38.6 结果归档
 ```text
 output/exp-roe-v1-20240315/
 ├── config.yaml          # 拷贝
@@ -119,8 +113,7 @@ output/exp-roe-v1-20240315/
 
 ---
 
-## 39.7 Research Log
-
+## 38.7 Research Log
 团队 Wiki 或 Markdown 研究日志，每条记录：
 
 | 字段 | 内容 |
@@ -146,4 +139,4 @@ output/exp-roe-v1-20240315/
 ## 要点回顾
 
 - 可复现 = 代码 + 环境 + 数据 + 配置 + 结果 五元组
-- 下一章 [40 研究平台能力分层](40-research-platform.md)连接研究环境与生产边界
+- 下一章 [39 研究平台能力分层](39-research-platform.md)连接研究环境与生产边界

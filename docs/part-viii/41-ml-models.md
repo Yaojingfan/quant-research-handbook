@@ -1,4 +1,4 @@
-# 42 常用模型概览
+# 41 常用模型概览
 
 > 所属模块：Part VIII 机器学习在多因子研究中的应用
 
@@ -29,8 +29,7 @@
 
 ---
 
-## 42.1 Linear Regression
-
+## 41.1 Linear Regression
 $$
 y = X\beta + \epsilon
 $$
@@ -46,8 +45,7 @@ score = model.predict(X_test)
 
 ---
 
-## 42.2 Logistic Regression
-
+## 41.2 Logistic Regression
 标签：$y \in \{0,1\}$（如次月收益是否高于中位数）。
 
 - 输出概率，可用于分层
@@ -55,18 +53,16 @@ score = model.predict(X_test)
 
 ---
 
-## 42.3 Random Forest
-
+## 41.3 Random Forest
 - Bagging + 决策树；对异常值相对稳健
 - **缺点**：高维稀疏因子、外推能力弱；特征重要性不稳定
 
 ---
 
-## 42.4 XGBoost
-
+## 41.4 XGBoost
 - 梯度提升树；Kaggle 式表格数据强基线
 - 超参：`max_depth`, `learning_rate`, `subsample`, `colsample_bytree`
-- **注意**：默认按行采样破坏截面结构 — 应按**日期分组** CV（43 章）
+- **注意**：默认按行采样破坏截面结构 — 应按**日期分组** CV（42 章）
 
 ```python
 import xgboost as xgb
@@ -80,16 +76,14 @@ model = xgb.XGBRegressor(
 
 ---
 
-## 42.5 LightGBM
-
+## 41.5 LightGBM
 - 叶子优先生长；大数据更快
 - 类别特征原生支持（行业代码）
 - 与 XGBoost 类似，需严格时间切分
 
 ---
 
-## 42.6 神经网络概念性介绍
-
+## 41.6 神经网络概念性介绍
 **结构**：MLP、TabNet、Temporal Fusion 等。
 
 | 优势 | 劣势 |
@@ -130,4 +124,4 @@ flowchart TD
 
 - 线性模型是**必做的 baseline**（mandatory baseline）
 - XGBoost/LGBM 是 A 股表格因子 ML 的主流工作马
-- 下一章 [43 机器学习工作流](43-ml-workflow.md)讲完整 ML 研究流程
+- 下一章 [42 机器学习工作流](42-ml-workflow.md)讲完整 ML 研究流程

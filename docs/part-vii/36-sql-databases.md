@@ -1,4 +1,4 @@
-# 37 SQL 与研究数据库
+# 36 SQL 与研究数据库
 
 > 所属模块：Part VII 研究工程化
 
@@ -16,8 +16,7 @@
 
 ---
 
-## 37.1 基础查询
-
+## 36.1 基础查询
 ```sql
 -- 错误示范：当前成分表不可用于历史回测（幸存者偏差）
 -- SELECT ... FROM index_member WHERE index_code = '000905'
@@ -38,8 +37,7 @@ ORDER BY b.trade_date, b.symbol;
 
 ---
 
-## 37.2 JOIN
-
+## 36.2 JOIN
 | 类型 | 用途 |
 | --- | --- |
 | INNER | 两表都有记录 |
@@ -60,8 +58,7 @@ INNER JOIN index_member_hist m
 
 ---
 
-## 37.3 GROUP BY
-
+## 36.3 GROUP BY
 截面因子统计：
 
 ```sql
@@ -77,8 +74,7 @@ GROUP BY trade_date;
 
 ---
 
-## 37.4 窗口函数
-
+## 36.4 窗口函数
 ```sql
 SELECT symbol, trade_date, close,
        AVG(close) OVER (
@@ -97,8 +93,7 @@ FROM daily_bar;
 
 ---
 
-## 37.5 增量更新
-
+## 36.5 增量更新
 ```sql
 -- 幂等：先删后插 或 MERGE
 DELETE FROM factor_value WHERE trade_date = :dt;
@@ -109,8 +104,7 @@ INSERT INTO factor_value SELECT ... FROM staging WHERE trade_date = :dt;
 
 ---
 
-## 37.6 数据库索引
-
+## 36.6 数据库索引
 ```sql
 CREATE INDEX idx_bar_date_sym ON daily_bar (trade_date, symbol);
 CREATE INDEX idx_factor_date ON factor_value (trade_date);
@@ -124,8 +118,7 @@ CREATE INDEX idx_factor_date ON factor_value (trade_date);
 
 ---
 
-## 37.7 研究数据查询案例
-
+## 36.7 研究数据查询案例
 **任务**：计算每月末 ROE 因子 Rank IC 所需底层数据。
 
 > **注意**：下例用自然月 `DATE_TRUNC` 仅作 SQL 语法示意；生产应用**交易日历**取每月最后一个交易日，勿用自然月末。
@@ -168,4 +161,4 @@ JOIN fwd_ret r ON f.symbol = r.symbol AND f.month = r.month;
 
 - SQL 是团队共享的数据接口
 - 窗口函数 + 历史成分表 = PIT 查询基础
-- 下一章 [38 研究工程化](38-research-engineering.md)讲研究代码如何工程化
+- 下一章 [37 研究工程化](37-research-engineering.md)讲研究代码如何工程化

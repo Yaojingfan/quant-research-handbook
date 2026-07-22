@@ -159,29 +159,29 @@ nav:
     - 30 样本外验证与稳健性测试: part-v/30-oos-robustness.md
   - Part VI 风险管理与收益归因:
     - 概览: part-vi/index.md
-    - 32 风险的基本框架: part-vi/32-risk-framework.md
-    - 33 风险模型基础: part-vi/33-risk-models.md
-    - 34 收益归因: part-vi/34-performance-attribution.md
-    - 35 风险监控与策略失效: part-vi/35-risk-monitoring.md
+    - 31 风险的基本框架: part-vi/31-risk-framework.md
+    - 32 风险模型基础: part-vi/32-risk-models.md
+    - 33 收益归因: part-vi/33-performance-attribution.md
+    - 34 风险监控与策略失效: part-vi/34-risk-monitoring.md
   - Part VII 研究工程化:
     - 概览: part-vii/index.md
-    - 36 Python 在量化研究中的应用: part-vii/36-python-for-quant.md
-    - 37 SQL 与研究数据库: part-vii/37-sql-databases.md
-    - 38 研究代码的工程化: part-vii/38-research-engineering.md
-    - 39 可复现研究: part-vii/39-reproducible-research.md
-    - 40 研究平台能力分层: part-vii/40-research-platform.md
+    - 35 Python 在量化研究中的应用: part-vii/35-python-for-quant.md
+    - 36 SQL 与研究数据库: part-vii/36-sql-databases.md
+    - 37 研究代码的工程化: part-vii/37-research-engineering.md
+    - 38 可复现研究: part-vii/38-reproducible-research.md
+    - 39 研究平台能力分层: part-vii/39-research-platform.md
   - Part VIII 机器学习在多因子研究中的应用:
     - 概览: part-viii/index.md
-    - 41 机器学习在量化中的正确定位: part-viii/41-ml-positioning.md
-    - 42 常用模型概览: part-viii/42-ml-models.md
-    - 43 机器学习研究流程: part-viii/43-ml-workflow.md
-    - 44 机器学习常见陷阱: part-viii/44-ml-pitfalls.md
+    - 40 机器学习在量化中的正确定位: part-viii/40-ml-positioning.md
+    - 41 常用模型概览: part-viii/41-ml-models.md
+    - 42 机器学习研究流程: part-viii/42-ml-workflow.md
+    - 43 机器学习常见陷阱: part-viii/43-ml-pitfalls.md
   - Part IX 从研究到实盘:
     - 概览: part-ix/index.md
-    - 45 模拟盘与实盘验证: part-ix/45-paper-trading.md
-    - 46 策略生产流程: part-ix/46-production-workflow.md
-    - 47 实盘监控与故障处理: part-ix/47-live-monitoring.md
-    - 48 策略容量与规模管理: part-ix/48-capacity-management.md
+    - 44 模拟盘与实盘验证: part-ix/44-paper-trading.md
+    - 45 策略生产流程: part-ix/45-production-workflow.md
+    - 46 实盘监控与故障处理: part-ix/46-live-monitoring.md
+    - 47 策略容量与规模管理: part-ix/47-capacity-management.md
   - Appendix 附录:
     - A 量化术语表: appendix/a-glossary.md
     - B 常用数学与统计基础: appendix/b-math-stats.md

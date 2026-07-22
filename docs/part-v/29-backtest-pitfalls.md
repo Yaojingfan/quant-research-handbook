@@ -402,7 +402,7 @@ flowchart TD
 ### 修复清单
 
 - [ ] Git tag + data hash + config hash = **run_id**
-- [ ] 随机种子全局固定（Part VII 第 39 章）
+- [ ] 随机种子全局固定（Part VII 第 38 章）
 - [ ] 数据 **immutable snapshot**
 - [ ] Golden file test：允许 ±1e-8 误差
 - [ ] Research log 绑定 run_id
