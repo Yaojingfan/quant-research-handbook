@@ -1,10 +1,10 @@
 site_name: Quant Research Handbook
 site_description: 量化策略研究新人手册——股票量化多因子研究内部知识库
 site_author: Quant Research Team
-site_url: https://YOUR_GITHUB_USERNAME.github.io/quant-research-handbook/
+site_url: https://yaojingfan.github.io/quant-research-handbook/
 
 repo_name: quant-research-handbook
-repo_url: https://github.com/YOUR_GITHUB_USERNAME/quant-research-handbook
+repo_url: https://github.com/Yaojingfan/quant-research-handbook
 edit_uri: edit/main/docs/
 
 copyright: Copyright &copy; Quant Research Team — Internal Training Handbook
