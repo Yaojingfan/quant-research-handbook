@@ -1,0 +1,5398 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="量化策略研究新人手册——股票量化多因子研究内部知识库">
+      
+      
+        <meta name="author" content="Quant Research Team">
+      
+      
+        <link rel="canonical" href="https://yaojingfan.github.io/quant-research-handbook/part-v/29-backtest-pitfalls/">
+      
+      
+        <link rel="prev" href="../28-performance-metrics/">
+      
+      
+        <link rel="next" href="../30-oos-robustness/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>29 回测偏差与常见陷阱 - Quant Research Handbook</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:300,300i,400,400i,700,700i%7CIBM+Plex+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"IBM Plex Sans";--md-code-font:"IBM Plex Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#29" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner">
+          <div class="md-banner__inner md-grid md-typeset">
+            
+            
+  内部培训手册 · 股票中低频多因子研究主线
+
+          </div>
+          
+        </aside>
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="Quant Research Handbook" class="md-header__button md-logo" aria-label="Quant Research Handbook" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m3 14 .5.07L8.07 9.5a1.95 1.95 0 0 1 .52-1.91c.78-.79 2.04-.79 2.82 0 .53.52.7 1.26.52 1.91l2.57 2.57.5-.07c.18 0 .35 0 .5.07l3.57-3.57C19 8.35 19 8.18 19 8a2 2 0 0 1 2-2 2 2 0 0 1 2 2 2 2 0 0 1-2 2c-.18 0-.35 0-.5-.07l-3.57 3.57c.07.15.07.32.07.5a2 2 0 0 1-2 2 2 2 0 0 1-2-2l.07-.5-2.57-2.57c-.32.07-.68.07-1 0L4.93 15.5 5 16a2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Quant Research Handbook
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              29 回测偏差与常见陷阱
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="切换到深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="切换到浅色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Yaojingfan/quant-research-handbook" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    quant-research-handbook
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part-i/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part I 认识量化研究
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part-ii/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part II 数据是量化研究的起点
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part-iii/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part III 股票多因子研究
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part-iv/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part IV 从因子到投资组合
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part V 回测体系
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part-vi/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part VI 风险管理与收益归因
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part-vii/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part VII 研究工程化
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part-viii/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part VIII 机器学习在多因子研究中的应用
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../part-ix/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part IX 从研究到实盘
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../appendix/a-glossary/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Appendix 附录
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Quant Research Handbook" class="md-nav__button md-logo" aria-label="Quant Research Handbook" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m3 14 .5.07L8.07 9.5a1.95 1.95 0 0 1 .52-1.91c.78-.79 2.04-.79 2.82 0 .53.52.7 1.26.52 1.91l2.57 2.57.5-.07c.18 0 .35 0 .5.07l3.57-3.57C19 8.35 19 8.18 19 8a2 2 0 0 1 2-2 2 2 0 0 1 2 2 2 2 0 0 1-2 2c-.18 0-.35 0-.5-.07l-3.57 3.57c.07.15.07.32.07.5a2 2 0 0 1-2 2 2 2 0 0 1-2-2l.07-.5-2.57-2.57c-.32.07-.68.07-1 0L4.93 15.5 5 16a2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2"/></svg>
+
+    </a>
+    Quant Research Handbook
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Yaojingfan/quant-research-handbook" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    quant-research-handbook
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part-i/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part I 认识量化研究
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part I 认识量化研究
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-i/01-what-is-quant-investing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 什么是量化投资
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-i/02-team-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 团队结构与岗位分工
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-i/03-strategy-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 量化策略的基本地图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-i/04-long-enhancement-neutral/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 多头、增强与市场中性
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-i/05-return-risk-benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 收益、风险与基准
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-i/06-alpha-beta-exposure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 Alpha、Beta 与风险暴露
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-i/07-research-lifecycle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 策略研究生命周期
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-i/08-backtest-vs-live/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 回测与实盘的距离
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part-ii/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part II 数据是量化研究的起点
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part II 数据是量化研究的起点
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-ii/09-data-types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 量化数据的基本类型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-ii/10-data-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 数据获取与数据 Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-ii/11-data-cleaning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 数据清洗与质量控制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-ii/12-adjustment-trading-status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 复权、停牌与交易状态
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-ii/13-time-alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 时间对齐与避免未来函数
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-ii/14-storage-datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 数据存储与研究数据集
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part-iii/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part III 股票多因子研究
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part III 股票多因子研究
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-iii/15-factor-basics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 因子的基本认知
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-iii/16-factor-taxonomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 常见股票因子体系
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-iii/17-factor-construction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 因子构造
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-iii/18-single-factor-test/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    18 单因子检验
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-iii/19-factor-robustness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    19 因子稳健性与有效性判断
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-iii/20-factor-combination/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    20 因子相关性、冗余与组合
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part-iv/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part IV 从因子到投资组合
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part IV 从因子到投资组合
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-iv/21-universe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21 股票池构建
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-iv/22-expected-return/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22 从因子分数到预期收益
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-iv/23-portfolio-weights/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23 组合权重方法
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-iv/24-risk-constraints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    24 风险约束与中性化
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-iv/25-portfolio-optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    25 组合优化基础
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part V 回测体系
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part V 回测体系
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../26-backtest-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    26 回测的基本框架
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../27-transaction-costs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    27 交易成本与成交建模
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../28-performance-metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    28 绩效评价指标
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    29 回测偏差与常见陷阱
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    29 回测偏差与常见陷阱
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        本节导读
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        学习目标
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心概念
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#291-look-ahead-bias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29.1 Look-ahead Bias（未来函数）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="29.1 Look-ahead Bias（未来函数）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A 股典型案例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检测方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修复清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重程度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#292-survivorship-bias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29.2 Survivorship Bias（幸存者偏差）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="29.2 Survivorship Bias（幸存者偏差）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A 股典型案例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        后果
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检测方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修复清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重程度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#293-selection-bias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29.3 Selection Bias（选择偏差）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="29.3 Selection Bias（选择偏差）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A 股典型案例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#survivorship" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        与 Survivorship 区别
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检测方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修复清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重程度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#294-data-snooping-p-hacking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29.4 Data Snooping（数据窥探 / p-hacking）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="29.4 Data Snooping（数据窥探 / p-hacking）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A 股典型案例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        后果
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检测方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修复清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重程度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#295-overfitting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29.5 Overfitting（过拟合）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="29.5 Overfitting（过拟合）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        表现
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A 股加剧因素
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检测方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修复清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重程度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#296-transaction-cost-underestimation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29.6 Transaction Cost Underestimation（交易成本低估）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="29.6 Transaction Cost Underestimation（交易成本低估）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A 股典型案例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检测方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修复清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重程度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#297-incorrect-price-adjustment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29.7 Incorrect Price Adjustment（复权与价格错误）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="29.7 Incorrect Price Adjustment（复权与价格错误）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A 股典型案例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检测方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修复清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重程度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#298-universe-leakage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29.8 Universe Leakage（股票池泄漏）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="29.8 Universe Leakage（股票池泄漏）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A 股典型案例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#look-ahead-survivorship" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        与 Look-ahead / Survivorship 关系
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_36" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检测方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_37" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修复清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_38" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重程度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#299-rebalancing-timing-error" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29.9 Rebalancing Timing Error（调仓时点错误）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="29.9 Rebalancing Timing Error（调仓时点错误）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_39" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A 股典型案例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_40" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检测方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修复清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重程度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2910" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29.10 结果复现失败
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="29.10 结果复现失败">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_43" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_44" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        典型原因
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_45" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检测方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_46" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修复清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_47" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重程度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_48" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        偏差综合对照表
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        上线前偏差审计 Checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pythondelay" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python：Delay 敏感性测试
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_49" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        常见错误（元层面）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_50" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        要点回顾
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../30-oos-robustness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    30 样本外验证与稳健性测试
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part-vi/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part VI 风险管理与收益归因
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part VI 风险管理与收益归因
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-vi/32-risk-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    32 风险的基本框架
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-vi/33-risk-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    33 风险模型基础
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-vi/34-performance-attribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    34 收益归因
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-vi/35-risk-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    35 风险监控与策略失效
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part-vii/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part VII 研究工程化
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part VII 研究工程化
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-vii/36-python-for-quant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    36 Python 在量化研究中的应用
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-vii/37-sql-databases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    37 SQL 与研究数据库
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-vii/38-research-engineering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    38 研究代码的工程化
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-vii/39-reproducible-research/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    39 可复现研究
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-vii/40-research-platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    40 研究平台能力分层
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part-viii/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part VIII 机器学习在多因子研究中的应用
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part VIII 机器学习在多因子研究中的应用
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-viii/41-ml-positioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    41 机器学习在量化中的正确定位
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-viii/42-ml-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    42 常用模型概览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-viii/43-ml-workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    43 机器学习研究流程
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-viii/44-ml-pitfalls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    44 机器学习常见陷阱
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../part-ix/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part IX 从研究到实盘
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_10" id="__nav_10_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Part IX 从研究到实盘
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-ix/45-paper-trading/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    45 模拟盘与实盘验证
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-ix/46-production-workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    46 策略生产流程
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-ix/47-live-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    47 实盘监控与故障处理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../part-ix/48-capacity-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    48 策略容量与规模管理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appendix 附录
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Appendix 附录
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../appendix/a-glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A 量化术语表
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../appendix/b-math-stats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    B 常用数学与统计基础
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../appendix/c-python-sql/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C Python 与 SQL 快速参考
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../appendix/d-faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    D 常见问题 FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        本节导读
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        学习目标
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心概念
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#291-look-ahead-bias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29.1 Look-ahead Bias（未来函数）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="29.1 Look-ahead Bias（未来函数）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A 股典型案例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检测方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修复清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重程度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#292-survivorship-bias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29.2 Survivorship Bias（幸存者偏差）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="29.2 Survivorship Bias（幸存者偏差）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A 股典型案例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        后果
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检测方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修复清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重程度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#293-selection-bias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29.3 Selection Bias（选择偏差）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="29.3 Selection Bias（选择偏差）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A 股典型案例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#survivorship" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        与 Survivorship 区别
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检测方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修复清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重程度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#294-data-snooping-p-hacking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29.4 Data Snooping（数据窥探 / p-hacking）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="29.4 Data Snooping（数据窥探 / p-hacking）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A 股典型案例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        后果
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检测方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修复清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重程度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#295-overfitting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29.5 Overfitting（过拟合）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="29.5 Overfitting（过拟合）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        表现
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A 股加剧因素
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检测方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修复清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重程度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#296-transaction-cost-underestimation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29.6 Transaction Cost Underestimation（交易成本低估）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="29.6 Transaction Cost Underestimation（交易成本低估）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A 股典型案例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检测方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修复清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重程度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#297-incorrect-price-adjustment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29.7 Incorrect Price Adjustment（复权与价格错误）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="29.7 Incorrect Price Adjustment（复权与价格错误）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A 股典型案例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检测方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修复清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重程度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#298-universe-leakage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29.8 Universe Leakage（股票池泄漏）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="29.8 Universe Leakage（股票池泄漏）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A 股典型案例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#look-ahead-survivorship" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        与 Look-ahead / Survivorship 关系
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_36" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检测方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_37" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修复清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_38" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重程度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#299-rebalancing-timing-error" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29.9 Rebalancing Timing Error（调仓时点错误）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="29.9 Rebalancing Timing Error（调仓时点错误）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_39" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A 股典型案例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_40" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检测方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修复清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重程度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2910" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29.10 结果复现失败
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="29.10 结果复现失败">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_43" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_44" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        典型原因
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_45" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检测方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_46" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修复清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_47" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重程度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_48" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        偏差综合对照表
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        上线前偏差审计 Checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pythondelay" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python：Delay 敏感性测试
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_49" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        常见错误（元层面）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_50" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        要点回顾
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="导航栏" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    首页
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Part V 回测体系
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="29">29 回测偏差与常见陷阱<a class="headerlink" href="#29" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>所属模块：Part V 回测体系</p>
+<p><strong>大多数「实盘失效」，不是市场变了，是回测里埋了雷——只是你直到亏钱时才挖出来。</strong> 本章是 Part V 的核心：系统梳理让回测 <strong>系统性偏乐观</strong> 的十条偏差，每条配定义、A 股案例、检测方法与修复清单。</p>
+</blockquote>
+<h2 id="_1">本节导读<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>回测偏差不是「小误差」，而是 <strong>方向性错误</strong>——它们几乎总是让结果更好看。本章按 <strong>发生环节</strong> 组织：数据 → 样本 → 方法 → 成本 → 工程。建议作为 <strong>策略上线前 checklist</strong> 逐项勾选。</p>
+<h2 id="_2">学习目标<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<ol>
+<li>识别并定义十大类回测偏差</li>
+<li>能在自有代码与数据中定位典型偏差</li>
+<li>掌握每条偏差的 <strong>检测 heuristic 与修复方案</strong></li>
+<li>建立「偏差审计」习惯，降低 Data Snooping 与过拟合</li>
+</ol>
+<h2 id="_3">核心概念<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TD
+    A[回测结果] --&gt; B{是否过于乐观?}
+    B --&gt; C[数据层偏差]
+    B --&gt; D[样本层偏差]
+    B --&gt; E[方法层偏差]
+    B --&gt; F[成本层偏差]
+    B --&gt; G[工程层偏差]
+    C --&gt; C1[Look-ahead]
+    C --&gt; C2[复权错误]
+    C --&gt; C3[Universe Leakage]
+    D --&gt; D1[幸存者偏差]
+    D --&gt; D2[Selection Bias]
+    D --&gt; D3[Data Snooping]
+    E --&gt; E1[过拟合]
+    E --&gt; E2[调仓时点错误]
+    F --&gt; F1[成本低估]
+    G --&gt; G1[不可复现]</code></pre>
+<hr />
+<h2 id="291-look-ahead-bias">29.1 Look-ahead Bias（未来函数）<a class="headerlink" href="#291-look-ahead-bias" title="Permanent link">&para;</a></h2>
+<h3 id="_4">定义<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<p>在 <strong>决策时点 <span class="arithmatex">\(t\)</span> 使用了 <span class="arithmatex">\(t\)</span> 之后才能获得的信息</strong>。</p>
+<h3 id="a">A 股典型案例<a class="headerlink" href="#a" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>错误做法</th>
+<th>后果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>财务因子</td>
+<td>用报告期 merge 价格，忽略公告日</td>
+<td>财报发布前已「知道」业绩</td>
+</tr>
+<tr>
+<td>指数成分</td>
+<td>用 2025 成分回测 2015</td>
+<td>提前持有未来牛股</td>
+</tr>
+<tr>
+<td>因子标准化</td>
+<td>全样本 mean/std 做 z-score</td>
+<td>用到未来分布</td>
+</tr>
+<tr>
+<td>收盘价信号</td>
+<td>当日收盘算因子、当日收盘成交</td>
+<td>不可能实现</td>
+</tr>
+<tr>
+<td>分析师一致预期</td>
+<td>用修订后历史</td>
+<td>回填预期</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_5">检测方法<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Delay test</strong>：信号 lag 0 vs 1 vs 2 日，IC/PnL 是否在 lag=1 断崖式下跌</li>
+<li><strong>Audit timestamp</strong>：每条数据字段是否有 <code>available_date</code></li>
+<li><strong>Merge 审查</strong>：<code>merge</code> 是否 <code>on report_period</code> 而非 <code>on announce_date</code></li>
+<li><strong>子样本随机切分</strong>：若 IS 极好、OOS 随机段仍极好，怀疑 leakage</li>
+</ol>
+<h3 id="_6">修复清单<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 财务：as-of join by <code>announce_date</code>（Part II 第 13 章）</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 指数：Point-in-Time membership 表</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 标准化：截面按日；禁用全样本 scaler</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 成交：信号 <span class="arithmatex">\(t\)</span> → 成交 <span class="arithmatex">\(t+1\)</span></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 字段级 <code>available_time</code> 入库</li>
+</ul>
+<h3 id="_7">严重程度<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<p>⭐⭐⭐⭐⭐ —— <strong>最致命</strong>；一条 future leak 可让策略从负变正。</p>
+<hr />
+<h2 id="292-survivorship-bias">29.2 Survivorship Bias（幸存者偏差）<a class="headerlink" href="#292-survivorship-bias" title="Permanent link">&para;</a></h2>
+<h3 id="_8">定义<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<p>样本仅包含 <strong>至今仍存在</strong> 的证券，遗漏已退市、被并购标的。</p>
+<h3 id="a_1">A 股典型案例<a class="headerlink" href="#a_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>回测「当前 A 股全市场」2010—2025，不含 2018—2020 大量退市股</li>
+<li>只保留「正常上市」标签，未纳入 <strong>退市整理期</strong> 数据</li>
+<li>数据库 vendor 默认剔除 dead symbols</li>
+</ul>
+<h3 id="_9">后果<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<ul>
+<li>收益 <strong>偏高</strong>（坏公司消失）</li>
+<li>波动 <strong>偏低</strong></li>
+<li>质量、ST、小盘因子 <strong>尤其严重</strong></li>
+</ul>
+<h3 id="_10">检测方法<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<ol>
+<li>统计历史池 <strong>每年退市数量</strong> 是否为 0（应非 0）</li>
+<li>对比「含退市」vs「不含退市」组合收益差</li>
+<li>检查数据 vendor 文档的 universe 定义</li>
+</ol>
+<h3 id="_11">修复清单<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 使用含 <strong>退市证券历史行情</strong> 的数据源</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 维护 <code>list_date</code>, <code>delist_date</code>, <code>status</code> 历史</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 退市前若可交易，保留在池中直至不可交易</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 研究报告注明退市样本处理方式</li>
+</ul>
+<h3 id="_12">严重程度<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
+<p>⭐⭐⭐⭐ —— A 股注册制后退市增加，近年偏差 <strong>越来越大</strong>。</p>
+<hr />
+<h2 id="293-selection-bias">29.3 Selection Bias（选择偏差）<a class="headerlink" href="#293-selection-bias" title="Permanent link">&para;</a></h2>
+<h3 id="_13">定义<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<p>样本或规则 <strong>非随机</strong> 地筛选了 favorable 子集，且筛选条件与 <strong>测试目标相关</strong>。</p>
+<h3 id="a_2">A 股典型案例<a class="headerlink" href="#a_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>偏差</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>只在「有财务数据」的股票上测价值因子</td>
+<td>排除 young / 亏损 / 金融股</td>
+</tr>
+<tr>
+<td>先删缺失再算 IC</td>
+<td>缺失非随机（停牌、ST）</td>
+</tr>
+<tr>
+<td>只在牛市长样本上调参</td>
+<td>参数只适合上涨 regime</td>
+</tr>
+<tr>
+<td>剔除 2015 股灾</td>
+<td>刻意去掉 stress test</td>
+</tr>
+<tr>
+<td>只报告「成功因子」不报告失败因子</td>
+<td>发表偏差</td>
+</tr>
+</tbody>
+</table>
+<h3 id="survivorship">与 Survivorship 区别<a class="headerlink" href="#survivorship" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Survivorship：<strong>时间轴上</strong> 遗漏死亡个体</li>
+<li>Selection：<strong>横截面或规则上</strong> 非随机入池</li>
+</ul>
+<h3 id="_14">检测方法<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h3>
+<ol>
+<li>对比 <strong>宽池 vs 窄池</strong> IC 差异</li>
+<li>列出 <strong>所有</strong> 尝试过的因子 / 参数，非只报 winner</li>
+<li>检查过滤链：每一步损失多少样本、损失是否 correlated with return</li>
+</ol>
+<h3 id="_15">修复清单<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 过滤规则 <strong>事前写入</strong> spec，非事后删段</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 保留 <strong>research log</strong>：所有实验 ID</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 压力段（2015、2018、2024）<strong>强制纳入</strong></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 缺失处理：区分 MCAR vs 非随机缺失</li>
+</ul>
+<h3 id="_16">严重程度<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<p>⭐⭐⭐⭐</p>
+<hr />
+<h2 id="294-data-snooping-p-hacking">29.4 Data Snooping（数据窥探 / p-hacking）<a class="headerlink" href="#294-data-snooping-p-hacking" title="Permanent link">&para;</a></h2>
+<h3 id="_17">定义<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
+<p>在同一数据集上 <strong>反复试验</strong> 大量假设，只报告显著结果，未校正多重检验。</p>
+<h3 id="a_3">A 股典型案例<a class="headerlink" href="#a_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>测试 200 个技术因子变体，只发布 Top 5</li>
+<li>Grid search 50 组 <code>(窗口, 中性化, 权重)</code> 取最优 Sharpe</li>
+<li>多个研究员多年共用同一 backtest set「调一调」</li>
+<li>看到 OOS 差就换 OOS 区间直到好看</li>
+</ul>
+<h3 id="_18">后果<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h3>
+<ul>
+<li>IS 显著 <strong>不可重复</strong></li>
+<li>机构内部 <strong>因子库膨胀</strong> 但实盘无一可用</li>
+</ul>
+<h3 id="_19">检测方法<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Deflated Sharpe Ratio</strong>（Bailey &amp; López de Prado 思想）：校正试验次数</li>
+<li>记录 <strong>trial count</strong>；trial &gt; 20 时 skepticism</li>
+<li><strong>Hold-out test set</strong> 只碰一次</li>
+<li>Bootstrap / 置换检验：null 下能否 replicate</li>
+</ol>
+<h3 id="_20">修复清单<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 预注册 <strong>research hypothesis</strong>（Hypothesis ID）</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Bonferroni / FDR 控制多重检验</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Train / Val / Test <strong>严格隔离</strong>（第 30 章）</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 「失败实验」入库，与成功同等存档</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 新因子必须通过 <strong>独立 OOS 段</strong> 或 walk-forward</li>
+</ul>
+<h3 id="_21">严重程度<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h3>
+<p>⭐⭐⭐⭐⭐ —— 机构级 <strong>隐性杀手</strong>；个人研究员同样难逃。</p>
+<hr />
+<h2 id="295-overfitting">29.5 Overfitting（过拟合）<a class="headerlink" href="#295-overfitting" title="Permanent link">&para;</a></h2>
+<h3 id="_22">定义<a class="headerlink" href="#_22" title="Permanent link">&para;</a></h3>
+<p>模型 <strong>记住样本噪声</strong> 而非规律；参数过多、样本过少、约束过弱。</p>
+<h3 id="_23">表现<a class="headerlink" href="#_23" title="Permanent link">&para;</a></h3>
+<ul>
+<li>IS Sharpe 2+，OOS near 0 或负</li>
+<li>参数 <strong>极度敏感</strong>：窗口 20 vs 21 天结果天差地别</li>
+<li>ML 模型 train <span class="arithmatex">\(R^2\)</span> 高，test <span class="arithmatex">\(R^2\)</span> 负</li>
+<li>十因子合成 + TE 优化 + 50 次调参</li>
+</ul>
+<h3 id="a_4">A 股加剧因素<a class="headerlink" href="#a_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>样本期短（有效 A 股量化历史 ~15—20 年）</li>
+<li>结构 break 多（2015、2017 风格、2020、2024）</li>
+<li>因子 <strong>crowding</strong> 后 IS 规律 OOS 反转</li>
+</ul>
+<h3 id="_24">检测方法<a class="headerlink" href="#_24" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>参数平原</strong>：好参数应是一片区域，非尖峰</li>
+<li><strong>复杂度惩罚</strong>：因子数 / 参数数 vs 样本长度</li>
+<li><strong>Walk-forward</strong> IR 是否稳定</li>
+<li><strong>Simple model challenge</strong>：复杂必须 beat 等权</li>
+</ol>
+<h3 id="_25">修复清单<a class="headerlink" href="#_25" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 默认 <strong>简单模型</strong>（等权、线性合成）</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 限制自由度：因子 &lt; 10 进入组合前先合成</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> μ shrinkage、权重 cap、换手惩罚</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> OOS + walk-forward <strong>硬门槛</strong></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> ML：Purged CV、early stopping、特征数上限</li>
+</ul>
+<h3 id="_26">严重程度<a class="headerlink" href="#_26" title="Permanent link">&para;</a></h3>
+<p>⭐⭐⭐⭐⭐</p>
+<hr />
+<h2 id="296-transaction-cost-underestimation">29.6 Transaction Cost Underestimation（交易成本低估）<a class="headerlink" href="#296-transaction-cost-underestimation" title="Permanent link">&para;</a></h2>
+<h3 id="_27">定义<a class="headerlink" href="#_27" title="Permanent link">&para;</a></h3>
+<p>回测 <strong>未充分扣除</strong> 佣金、印花税、滑点、冲击，或 <strong>换手被低估</strong>。</p>
+<h3 id="a_5">A 股典型案例<a class="headerlink" href="#a_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li>零成本 + 月换手 150%</li>
+<li>只算万 2 佣金，忽略 <strong>0.05% 印花税</strong></li>
+<li>小盘组合按 <strong>收盘价零滑点</strong> 成交</li>
+<li>忽略 <strong>最低 5 元</strong> 对小单的影响</li>
+<li>Drift 未更新，低估实际换手</li>
+</ul>
+<h3 id="_28">检测方法<a class="headerlink" href="#_28" title="Permanent link">&para;</a></h3>
+<ol>
+<li>毛 vs 净收益差是否 <strong>与换手成正比</strong></li>
+<li>成本占毛 Alpha <strong>比例</strong> &gt; 50% 则高危</li>
+<li>提高成本 50% 后策略是否仍盈利</li>
+<li>对比 <strong>理论换手 vs 模拟换手</strong></li>
+</ol>
+<h3 id="_29">修复清单<a class="headerlink" href="#_29" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 默认 conservative cost（第 27 章）</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 成本 <strong>压力测试</strong> ±50%</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 涨跌停、ADV 约束进回测</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 报告 <strong>成本分解</strong> 柱状图</li>
+</ul>
+<h3 id="_30">严重程度<a class="headerlink" href="#_30" title="Permanent link">&para;</a></h3>
+<p>⭐⭐⭐⭐ —— 高换手策略 <strong>一票否决</strong> 项。</p>
+<hr />
+<h2 id="297-incorrect-price-adjustment">29.7 Incorrect Price Adjustment（复权与价格错误）<a class="headerlink" href="#297-incorrect-price-adjustment" title="Permanent link">&para;</a></h2>
+<h3 id="_31">定义<a class="headerlink" href="#_31" title="Permanent link">&para;</a></h3>
+<p>除权除息、拆股、配股 <strong>未正确复权</strong>，或混用 <strong>前复权 / 后复权 / 不复权</strong>。</p>
+<h3 id="a_6">A 股典型案例<a class="headerlink" href="#a_6" title="Permanent link">&para;</a></h3>
+<ul>
+<li>用不复权价格算动量 → 除息日假暴跌 → 假 reversal</li>
+<li>前复权因子错误 → 历史价格断层</li>
+<li>复权与 <strong>成交量</strong> 未同步调整</li>
+<li>展示用前复权、回测用另一套</li>
+</ul>
+<h3 id="_32">检测方法<a class="headerlink" href="#_32" title="Permanent link">&para;</a></h3>
+<ol>
+<li>除息日前后 <strong>人工 spot check</strong> 5—10 只股票</li>
+<li>复权前后 <strong>收益率连续性</strong></li>
+<li><code>adj_factor</code> 与 vendor 交叉验证</li>
+<li>动量因子在除息密集期是否异常 spike</li>
+</ol>
+<h3 id="_33">修复清单<a class="headerlink" href="#_33" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 全项目 <strong>统一复权口径</strong>（通常后复权算收益）</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 收益用 <strong>复权价格比率</strong>，非手工减分红</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 复权因子版本与数据版本绑定</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Part II 第 12 章流程落地</li>
+</ul>
+<h3 id="_34">严重程度<a class="headerlink" href="#_34" title="Permanent link">&para;</a></h3>
+<p>⭐⭐⭐⭐ —— 动量、反转类 <strong>直接作废</strong>。</p>
+<hr />
+<h2 id="298-universe-leakage">29.8 Universe Leakage（股票池泄漏）<a class="headerlink" href="#298-universe-leakage" title="Permanent link">&para;</a></h2>
+<h3 id="_35">定义<a class="headerlink" href="#_35" title="Permanent link">&para;</a></h3>
+<p>使用了 <strong>当时不属于可投资集合</strong> 的股票信息——与 Look-ahead 重叠但 <strong>专指 pool 定义</strong>。</p>
+<h3 id="a_7">A 股典型案例<a class="headerlink" href="#a_7" title="Permanent link">&para;</a></h3>
+<ul>
+<li>用 <strong>现行沪深 300</strong> 回测 2010 指增</li>
+<li>每周用 <strong>未来一周</strong> 才生效的成分</li>
+<li>ST 剔除用 <strong>当前 ST 标签</strong> 涂改历史</li>
+<li>回测池 = 「现在有数据的股票」</li>
+</ul>
+<h3 id="look-ahead-survivorship">与 Look-ahead / Survivorship 关系<a class="headerlink" href="#look-ahead-survivorship" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>偏差</th>
+<th>焦点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Look-ahead</td>
+<td>任意未来信息</td>
+</tr>
+<tr>
+<td>Survivorship</td>
+<td>遗漏退市</td>
+</tr>
+<tr>
+<td>Universe Leakage</td>
+<td>池 membership 时间错误</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_36">检测方法<a class="headerlink" href="#_36" title="Permanent link">&para;</a></h3>
+<ol>
+<li>历史某日 pool count vs 官方 index 成分 count 对比</li>
+<li>调入 index <strong>之前</strong> 是否已持有该 stock</li>
+<li>ST 标记时间序列 vs 公告日</li>
+</ol>
+<h3 id="_37">修复清单<a class="headerlink" href="#_37" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Point-in-Time index membership（第 21 章）</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> ST / 停牌 <strong>历史状态表</strong></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>universe_version</code> 写入回测 config</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 增强收益相对 <strong>同期官方 benchmark</strong></li>
+</ul>
+<h3 id="_38">严重程度<a class="headerlink" href="#_38" title="Permanent link">&para;</a></h3>
+<p>⭐⭐⭐⭐⭐ —— 指增 <strong>TE 和 Alpha 同时虚高</strong>。</p>
+<hr />
+<h2 id="299-rebalancing-timing-error">29.9 Rebalancing Timing Error（调仓时点错误）<a class="headerlink" href="#299-rebalancing-timing-error" title="Permanent link">&para;</a></h2>
+<h3 id="_39">定义<a class="headerlink" href="#_39" title="Permanent link">&para;</a></h3>
+<p><strong>信号、权重、成交、计价</strong> 时点不一致或逻辑错误。</p>
+<h3 id="a_8">A 股典型案例<a class="headerlink" href="#a_8" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>错误</th>
+<th>后果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>月末因子用月末收盘，成交也用月末收盘</td>
+<td>Look-ahead</td>
+</tr>
+<tr>
+<td>周初信号、周末成交</td>
+<td>多算 4 日免费收益</td>
+</tr>
+<tr>
+<td>忽略 drift，直接设 target w</td>
+<td>换手低估</td>
+</tr>
+<tr>
+<td>分红日未调整 cash</td>
+<td>权重和 ≠ 1</td>
+</tr>
+<tr>
+<td>T+1 制度下 T 日买入可卖</td>
+<td>空头 / 回转错误</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_40">检测方法<a class="headerlink" href="#_40" title="Permanent link">&para;</a></h3>
+<ol>
+<li>打印 <strong>timeline diagram</strong>：数据可用 → 信号 → 订单 → 成交 → 计价</li>
+<li>手工演算 <strong>3 天</strong> 小样本组合</li>
+<li>权重和每日 <strong>sum(w) ≈ 1</strong></li>
+<li>与「延迟 1 日成交」版本 diff</li>
+</ol>
+<h3 id="_41">修复清单<a class="headerlink" href="#_41" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 文档化 <strong>Event Calendar</strong></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 成交日 = 信号日 + lag（≥1）</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Drift → trade delta 流程</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 单元测试：单 stock 除息路径</li>
+</ul>
+<h3 id="_42">严重程度<a class="headerlink" href="#_42" title="Permanent link">&para;</a></h3>
+<p>⭐⭐⭐⭐</p>
+<hr />
+<h2 id="2910">29.10 结果复现失败<a class="headerlink" href="#2910" title="Permanent link">&para;</a></h2>
+<h3 id="_43">定义<a class="headerlink" href="#_43" title="Permanent link">&para;</a></h3>
+<p><strong>相同配置</strong> 无法得到相同回测结果——工程或数据问题，或 <strong>隐性随机 / 隐性自由度</strong>。</p>
+<h3 id="_44">典型原因<a class="headerlink" href="#_44" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>原因</th>
+<th>表现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>未固定随机种子</td>
+<td>ML 权重每次不同</td>
+</tr>
+<tr>
+<td>数据 silent update</td>
+<td>vendor 修订历史</td>
+</tr>
+<tr>
+<td>并行 race condition</td>
+<td>订单分配不确定</td>
+</tr>
+<tr>
+<td>未版本化 config</td>
+<td>「昨天还能跑」</td>
+</tr>
+<tr>
+<td>浮点非确定性</td>
+<td>GPU / 多线程</td>
+</tr>
+<tr>
+<td>隐性 <code>dropna</code> 顺序变化</td>
+<td>样本量漂移</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_45">检测方法<a class="headerlink" href="#_45" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>同一 git commit + data snapshot</strong> 跑两次，diff NAV</li>
+<li>CI 中 <strong>回归测试</strong> golden NAV</li>
+<li>检查 <code>requirements.txt</code> / 环境 lock</li>
+<li>Code review：<code>sort_values</code> 是否 stable sort</li>
+</ol>
+<h3 id="_46">修复清单<a class="headerlink" href="#_46" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Git tag + data hash + config hash = <strong>run_id</strong></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 随机种子全局固定（Part VII 第 39 章）</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 数据 <strong>immutable snapshot</strong></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Golden file test：允许 ±1e-8 误差</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Research log 绑定 run_id</li>
+</ul>
+<h3 id="_47">严重程度<a class="headerlink" href="#_47" title="Permanent link">&para;</a></h3>
+<p>⭐⭐⭐ —— 不直接虚高 Sharpe，但 <strong>摧毁信任与协作</strong>；隐性 bug 可叠加其他偏差。</p>
+<hr />
+<h2 id="_48">偏差综合对照表<a class="headerlink" href="#_48" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>偏差</th>
+<th>主要环节</th>
+<th>乐观方向</th>
+<th>首要检测</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>29.1</td>
+<td>Look-ahead</td>
+<td>数据/时点</td>
+<td>↑收益</td>
+<td>Delay test</td>
+</tr>
+<tr>
+<td>29.2</td>
+<td>Survivorship</td>
+<td>样本</td>
+<td>↑收益 ↓风险</td>
+<td>退市计数</td>
+</tr>
+<tr>
+<td>29.3</td>
+<td>Selection</td>
+<td>规则</td>
+<td>↑收益</td>
+<td>池对比</td>
+</tr>
+<tr>
+<td>29.4</td>
+<td>Data Snooping</td>
+<td>研究流程</td>
+<td>↑显著性</td>
+<td>Trial log</td>
+</tr>
+<tr>
+<td>29.5</td>
+<td>Overfitting</td>
+<td>模型</td>
+<td>↑IS</td>
+<td>OOS / 参数平原</td>
+</tr>
+<tr>
+<td>29.6</td>
+<td>成本低估</td>
+<td>成本</td>
+<td>↑净收益</td>
+<td>毛净差</td>
+</tr>
+<tr>
+<td>29.7</td>
+<td>复权错误</td>
+<td>数据</td>
+<td>不定</td>
+<td>除息 spot</td>
+</tr>
+<tr>
+<td>29.8</td>
+<td>Universe Leak</td>
+<td>池</td>
+<td>↑指增</td>
+<td>PIT 成分</td>
+</tr>
+<tr>
+<td>29.9</td>
+<td>调仓时点</td>
+<td>流程</td>
+<td>↑收益</td>
+<td>Timeline</td>
+</tr>
+<tr>
+<td>29.10</td>
+<td>不可复现</td>
+<td>工程</td>
+<td>不定</td>
+<td>Double run</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="checklist">上线前偏差审计 Checklist<a class="headerlink" href="#checklist" title="Permanent link">&para;</a></h2>
+<div class="language-markdown highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="gu">## Data</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">- [ ]</span> 所有字段有 available_date，财务 as-of join
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">- [ ]</span> 复权统一，除息 spot check 通过
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">- [ ]</span> 含退市股，ST/停牌历史状态
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="gu">## Universe</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">- [ ]</span> PIT index membership
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">- [ ]</span> 池与 benchmark 口径文档化
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="gu">## Method</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="k">- [ ]</span> 信号 t → 成交 t+1
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="k">- [ ]</span> 截面标准化按日
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="k">- [ ]</span> 简单 baseline 对照
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="gu">## Cost &amp; Tradability</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="k">- [ ]</span> 佣金 + 印花税 + 滑点
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="k">- [ ]</span> 涨跌停 / ADV 约束
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="k">- [ ]</span> 成本 +50% 仍盈利？
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="gu">## Research Integrity</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="k">- [ ]</span> Trial log / Hypothesis ID
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="k">- [ ]</span> OOS 未触碰多次
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="k">- [ ]</span> Walk-forward IR &gt; 0
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="gu">## Engineering</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="k">- [ ]</span> 同 config 复现 NAV
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="k">- [ ]</span> run_id = git + data + config hash
+</span></code></pre></div>
+<hr />
+<h2 id="pythondelay">Python：Delay 敏感性测试<a class="headerlink" href="#pythondelay" title="Permanent link">&para;</a></h2>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">delay_sensitivity</span><span class="p">(</span><span class="n">factor</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">ret</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">delays</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)):</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;factor index=(date, symbol); ret 为 forward return&quot;&quot;&quot;</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">delays</span><span class="p">:</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="n">shifted</span> <span class="o">=</span> <span class="n">factor</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">&quot;symbol&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="n">ic</span> <span class="o">=</span> <span class="n">shifted</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">rank</span><span class="p">()</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">rank</span><span class="p">())</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="n">results</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="n">ic</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</span></code></pre></div>
+<p><strong>解读</strong>：lag=0 显著高于 lag=1 → <strong>高度怀疑</strong> Look-ahead 或时点错误。</p>
+<hr />
+<h2 id="_49">常见错误（元层面）<a class="headerlink" href="#_49" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>知道偏差存在但「这次应该没有」</strong> → 必须 checklist，不能靠感觉</li>
+<li><strong>只 fix 最亮的偏差</strong> → 多条偏差 <strong>叠加</strong> 非线性虚高</li>
+<li><strong>把 OOS 当 IS 继续调</strong> → OOS 变 IS，失去意义</li>
+<li><strong>复现失败仍写报告</strong> → 结果不可信</li>
+<li><strong>偏差审计只做一次</strong> → 数据/vendor 变更后重审</li>
+</ol>
+<h2 id="_50">要点回顾<a class="headerlink" href="#_50" title="Permanent link">&para;</a></h2>
+<ul>
+<li>回测偏差 <strong>几乎总让结果更好</strong>；怀疑乐观是专业本能</li>
+<li>Look-ahead、Universe Leak、Snooping、Overfitting 是四大杀手</li>
+<li>每条偏差有 <strong>检测 + 修复</strong>；上线前 checklist 非可选</li>
+<li>不可复现 = 不可上线；工程与统计同等重要</li>
+<li>下一章用 <strong>样本外与稳健性</strong> 做最后一道防火墙</li>
+</ul>
+<p>下一章：<a href="../30-oos-robustness/">30 样本外验证与稳健性测试</a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; Quant Research Team — Internal Training Handbook
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/YOUR_GITHUB_USERNAME/quant-research-handbook" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+      
+        <script src="../../javascripts/katex.js"></script>
+      
+    
+  </body>
+</html>
